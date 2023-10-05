@@ -6,6 +6,6 @@ import {PLATFORM_NAME} from './settings';
 /**
  * This method registers the platform with Homebridge
  */
-export default (api: API) => {
+export = (api: API) => {
   api.registerPlatform(PLATFORM_NAME, HiveHomeControllerPlatform);
 };

@@ -3,8 +3,6 @@ import {python} from 'pythonia';
 
 import {Log} from './log';
 
-export const pyhiveapi = await python('pyhiveapi');
-
 const DEVICE_REQUIRED = 'DEVICE_SRP_AUTH';
 
 export enum HotWaterState {
@@ -14,8 +12,14 @@ export enum HotWaterState {
   kBoost = 'BOOST',
 }
 
+let pyhiveapi;
+async function getPyHiveApi() {
+  return (pyhiveapi || (pyhiveapi = await python('pyhiveapi')));
+}
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function startHiveSession(config: PlatformConfig) {
+  const pyhiveapi = await getPyHiveApi();
   const hiveSession = await pyhiveapi.Hive$({
     username: 'bernard.gorman@gmail.com',
     password: '!KWbG9&MSDwNI40c',
@@ -39,7 +43,7 @@ export async function startHiveSession(config: PlatformConfig) {
 
     // Device data is needed for future device logins
     const deviceData = await hiveSession.auth.get_device_data();
-    Log.info('[Group Key, Key, Password]: ', deviceData);
+    Log.debug('[Group Key, Key, Password]: ', deviceData);
   }
 
   // If the device is already registered, log in using its information.
@@ -57,6 +61,5 @@ export async function startHiveSession(config: PlatformConfig) {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function getHiveDeviceList(hiveSession) {
   const waterHeaters = await hiveSession.deviceList['water_heater'];
-  Log.info('Water Heaters:', waterHeaters);
   return waterHeaters;
 }

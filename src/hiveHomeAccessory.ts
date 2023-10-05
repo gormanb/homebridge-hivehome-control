@@ -40,20 +40,20 @@ export class HiveHomeAccessory {
     // Create one switch for each service offered by this hot water device.
     //
     if (!this.accessory.getService(this.kManualName)) {
-      this.accessory.addService(Service.Switch, this.kManualName)
-          .setCharacteristic(Characteristic.ConfiguredName, this.kManualName);
+      this.accessory.addService(
+          Service.Switch, this.kManualName, this.kManualName);
     }
     this.manualService = <Service>this.accessory.getService(this.kManualName);
 
     if (!this.accessory.getService(this.kBoostName)) {
-      this.accessory.addService(Service.Switch, this.kBoostName)
-          .setCharacteristic(Characteristic.ConfiguredName, this.kBoostName);
+      this.accessory.addService(
+          Service.Switch, this.kBoostName, this.kBoostName);
     }
     this.boostService = <Service>this.accessory.getService(this.kBoostName);
 
     if (!this.accessory.getService(this.kScheduleName)) {
-      this.accessory.addService(Service.Switch, this.kScheduleName)
-          .setCharacteristic(Characteristic.ConfiguredName, this.kScheduleName);
+      this.accessory.addService(
+          Service.Switch, this.kScheduleName, this.kScheduleName);
     }
     this.scheduleService =
         <Service>this.accessory.getService(this.kScheduleName);
@@ -73,7 +73,7 @@ export class HiveHomeAccessory {
             (active) => this.setDeviceState(
                 active ? HotWaterState.kBoost : HotWaterState.kManualOff));
 
-    this.manualService.getCharacteristic(Characteristic.On)
+    this.scheduleService.getCharacteristic(Characteristic.On)
         .onGet(() => this.currentState === HotWaterState.kSchedule)
         .onSet(
             (active) => this.setDeviceState(
