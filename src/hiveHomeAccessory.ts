@@ -3,7 +3,7 @@
 import {PlatformAccessory, Service} from 'homebridge';
 
 import {HiveHomeControllerPlatform} from './platform';
-import {HotWaterState} from './util/hiveHelpers';
+import {HotWaterMode} from './util/hiveHelpers';
 import {Log} from './util/log';
 
 /**
@@ -13,17 +13,27 @@ import {Log} from './util/log';
 export class HiveHomeAccessory {
   private static readonly kRefreshInterval = 5000;
 
-  private readonly kManualName = 'Manual';
+  private readonly kModeName = 'Mode';
   private readonly kBoostName = 'Boost';
-  private readonly kScheduleName = 'Schedule';
+  private readonly kStateName = 'State';
 
-  private manualService: Service;
+  private modeService: Service;
   private boostService: Service;
-  private scheduleService: Service;
+  private modeTypes: Service[];
 
   private hiveDevice: any;
 
-  private currentState = HotWaterState.kManualOff;
+  private readonly kHwModes = [
+    HotWaterMode.kManualOn,
+    HotWaterMode.kSchedule,
+    HotWaterMode.kManualOff,
+  ];
+
+  private currentState = {
+    [this.kModeName]: 2,
+    [this.kBoostName]: false,
+    [this.kStateName]: false,
+  };
 
   constructor(
       private readonly platform: HiveHomeControllerPlatform,
@@ -39,45 +49,63 @@ export class HiveHomeAccessory {
     //
     // Create one switch for each service offered by this hot water device.
     //
-    if (!this.accessory.getService(this.kManualName)) {
-      this.accessory.addService(
-          Service.Switch, this.kManualName, this.kManualName);
-    }
-    this.manualService = <Service>this.accessory.getService(this.kManualName);
-
     if (!this.accessory.getService(this.kBoostName)) {
       this.accessory.addService(
           Service.Switch, this.kBoostName, this.kBoostName);
     }
     this.boostService = <Service>this.accessory.getService(this.kBoostName);
 
-    if (!this.accessory.getService(this.kScheduleName)) {
-      this.accessory.addService(
-          Service.Switch, this.kScheduleName, this.kScheduleName);
+    if (!this.accessory.getService(this.kModeName)) {
+      this.accessory
+          .addService(Service.Television, this.kModeName, this.kModeName)
+          .setCharacteristic(Characteristic.ConfiguredName, this.kModeName)
+          .setCharacteristic(
+              Characteristic.SleepDiscoveryMode,
+              Characteristic.SleepDiscoveryMode.ALWAYS_DISCOVERABLE);
     }
-    this.scheduleService =
-        <Service>this.accessory.getService(this.kScheduleName);
+    this.modeService = <Service>this.accessory.getService(this.kModeName);
+
+    // Extract the current list of InputSources from the accessory.
+    this.modeTypes = this.accessory.services.filter(
+        elem => elem instanceof this.platform.Service.InputSource);
+
+    for (let id = 0; id < this.kHwModes.length; ++id) {
+      // Check whether this source already exists, and create it if necessary.
+      let modeType =
+          this.modeTypes.find(elem => elem.subtype === this.kHwModes[id]);
+      if (!modeType) {
+        Log.info('Creating new mode:', this.kHwModes[id]);
+        modeType = this.accessory.addService(
+            this.platform.Service.InputSource, this.kHwModes[id],
+            this.kHwModes[id]);
+        this.modeService.addLinkedService(modeType);
+      }
+      // Set the characteristics of the input source to match the app list.
+      modeType.setCharacteristic(this.platform.Characteristic.Identifier, id)
+          .setCharacteristic(
+              this.platform.Characteristic.ConfiguredName, this.kHwModes[id])
+          .setCharacteristic(
+              this.platform.Characteristic.IsConfigured,
+              this.platform.Characteristic.IsConfigured.CONFIGURED)
+          .setCharacteristic(
+              this.platform.Characteristic.InputSourceType,
+              this.platform.Characteristic.InputSourceType.OTHER);
+    }
 
     //
     // Register handlers for all dynamic characteristics.
     //
-    this.manualService.getCharacteristic(Characteristic.On)
-        .onGet(() => this.currentState === HotWaterState.kManualOn)
-        .onSet(
-            (active) => this.setDeviceState(
-                active ? HotWaterState.kManualOn : HotWaterState.kManualOff));
-
     this.boostService.getCharacteristic(Characteristic.On)
-        .onGet(() => this.currentState === HotWaterState.kBoost)
+        .onGet(() => this.currentState[this.kBoostName])
         .onSet(
-            (active) => this.setDeviceState(
-                active ? HotWaterState.kBoost : HotWaterState.kManualOff));
+            (active) => this.setDeviceState(this.kBoostName, <boolean>active));
 
-    this.scheduleService.getCharacteristic(Characteristic.On)
-        .onGet(() => this.currentState === HotWaterState.kSchedule)
-        .onSet(
-            (active) => this.setDeviceState(
-                active ? HotWaterState.kSchedule : HotWaterState.kManualOff));
+    this.modeService.getCharacteristic(Characteristic.Active)
+        .onGet(() => this.currentState[this.kStateName]);
+
+    this.modeService.getCharacteristic(Characteristic.ActiveIdentifier)
+        .onGet(() => this.currentState[this.kModeName])
+        .onSet((val) => this.setDeviceState(this.kModeName, <number>val));
 
     //
     // Begin monitoring the device for state changes.
@@ -89,42 +117,48 @@ export class HiveHomeAccessory {
 
   // Get the device power state and push to Homekit when it changes.
   async updateDeviceState() {
-    const lastState = this.currentState;
-    if (await this.hiveSession.hotwater.getBoost(this.hiveDevice) === 'ON') {
-      this.currentState = HotWaterState.kBoost;
-    } else {
-      this.currentState =
-          await this.hiveSession.hotwater.getMode(this.hiveDevice);
-    }
-    if (lastState !== this.currentState) {
+    const lastState = Object.assign({}, this.currentState);
+    this.currentState[this.kBoostName] =
+        (await this.hiveSession.hotwater.getBoost(this.hiveDevice) === 'ON');
+    this.currentState[this.kStateName] =
+        (await this.hiveSession.hotwater.getState(this.hiveDevice) === 'ON');
+    const modeIndex = this.kHwModes.indexOf(
+        await this.hiveSession.hotwater.getMode(this.hiveDevice));
+    this.currentState[this.kModeName] =
+        (modeIndex >= 0 ? modeIndex : this.currentState[this.kModeName]);
+    if (JSON.stringify(lastState) !== JSON.stringify(this.currentState)) {
       this.updateHomekitState();
     }
   }
 
-  async setDeviceState(newState: HotWaterState) {
-    if (newState === HotWaterState.kBoost) {
-      await this.hiveSession.hotwater.setBoostOn(this.hiveDevice, 60);
-      Log.info('Enabled Hot Water Boost for 60 minutes');
-    } else if (this.currentState === HotWaterState.kBoost) {
-      await this.hiveSession.hotwater.setBoostOff(this.hiveDevice);
-      Log.info('Turned off Hot Water Boost');
-    } else {
-      await this.hiveSession.hotwater.setMode(this.hiveDevice, newState);
-      Log.info('Set Hot Water mode to:', newState);
+  async setDeviceState(serviceName: string, newState: number|boolean) {
+    switch (serviceName) {
+      case this.kBoostName:
+        if (newState) {
+          await this.hiveSession.hotwater.setBoostOn(this.hiveDevice, 60);
+          Log.info('Enabled Hot Water Boost for 60 minutes');
+        } else {
+          await this.hiveSession.hotwater.setBoostOff(this.hiveDevice);
+          Log.info('Turned off Hot Water Boost');
+        }
+        break;
+      case this.kModeName:
+        await this.hiveSession.hotwater.setMode(
+            this.hiveDevice, this.kHwModes[<number>newState]);
+        Log.info('Set Hot Water mode to:', this.kHwModes[<number>newState]);
     }
-    this.currentState = newState;
+    this.currentState[serviceName] = newState;
     this.updateHomekitState();
   }
 
   async updateHomekitState() {
-    this.manualService.updateCharacteristic(
-        this.platform.Characteristic.On,
-        this.currentState === HotWaterState.kManualOn);
     this.boostService.updateCharacteristic(
-        this.platform.Characteristic.On,
-        this.currentState === HotWaterState.kBoost);
-    this.scheduleService.updateCharacteristic(
-        this.platform.Characteristic.On,
-        this.currentState === HotWaterState.kSchedule);
+        this.platform.Characteristic.On, this.currentState[this.kBoostName]);
+    this.modeService.updateCharacteristic(
+        this.platform.Characteristic.Active,
+        this.currentState[this.kStateName]);
+    this.modeService.updateCharacteristic(
+        this.platform.Characteristic.ActiveIdentifier,
+        this.currentState[this.kModeName]);
   }
 }

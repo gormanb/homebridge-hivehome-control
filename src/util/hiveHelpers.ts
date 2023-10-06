@@ -5,11 +5,10 @@ import {Log} from './log';
 
 const DEVICE_REQUIRED = 'DEVICE_SRP_AUTH';
 
-export enum HotWaterState {
-  kManualOff = 'OFF',
+export enum HotWaterMode {
   kManualOn = 'ON',
-  kSchedule = 'SCHEDULE',
-  kBoost = 'BOOST',
+  kManualOff = 'OFF',
+  kSchedule = 'SCHEDULE'
 }
 
 let pyhiveapi;
