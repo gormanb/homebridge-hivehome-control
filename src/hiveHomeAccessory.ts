@@ -81,6 +81,13 @@ export class HiveHomeAccessory {
 
   // Get the device power state and push to Homekit when it changes.
   async updateDeviceState() {
+    // Update the hive device from the server.
+    if (await this.hiveSession.updateData(this.hiveDevice)) {
+      this.hiveDevice =
+          await this.hiveSession.hotwater.getWaterHeater(this.hiveDevice);
+    }
+
+    // Check whether any attributes have changed.
     const lastState = Object.assign({}, this.currentState);
     let result;
     if ((result = await this.hiveSession.hotwater.getBoost(this.hiveDevice))) {
