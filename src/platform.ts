@@ -30,7 +30,7 @@ export class HiveHomeControllerPlatform implements DynamicPlatformPlugin {
       public readonly api: API,
   ) {
     // Configure the custom log with the Homebridge logger and debug config.
-    Log.configure(logger, config.debug);
+    Log.configure(logger, config.enableDebugLog);
 
     // If the config is not valid, bail out immediately. We will not discover
     // any new accessories or register any handlers for cached accessories.

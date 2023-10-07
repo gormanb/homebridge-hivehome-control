@@ -12,6 +12,7 @@ import {Log} from './util/log';
  */
 export class HiveHomeAccessory {
   private static readonly kRefreshInterval = 5000;
+  private static readonly kBoostTimeMins = 60;
 
   private readonly kManualName = 'Manual';
   private readonly kBoostName = 'Boost';
@@ -106,8 +107,10 @@ export class HiveHomeAccessory {
     switch (serviceName) {
       case this.kBoostName:
         if (newState === HotWaterMode.kOn) {
-          await this.hiveSession.hotwater.setBoostOn(this.hiveDevice, 60);
-          Log.info('Enabled Hot Water Boost for 60 minutes');
+          await this.hiveSession.hotwater.setBoostOn(
+              this.hiveDevice, HiveHomeAccessory.kBoostTimeMins);
+          Log.info(`Enabled Hot Water Boost for ${
+              HiveHomeAccessory.kBoostTimeMins} minutes`);
         } else {
           await this.hiveSession.hotwater.setBoostOff(this.hiveDevice);
           Log.info('Turned off Hot Water Boost');

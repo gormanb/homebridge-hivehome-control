@@ -45,4 +45,5 @@ if len(WaterHeaters) >= 1:
     print("Set mode to OFF : " + str(session.hotwater.setMode(WaterHeater_1, "OFF")))
     print("Turn boost on for 30 minutes : " + str(session.hotwater.setBoostOn(WaterHeater_1, 30)))
     print("Get whether boost is currently On/Off: " + str(session.hotwater.getBoost(WaterHeater_1)))
+    print("Get boost time remaining : " + str(session.hotwater.getBoostTime(WaterHeater_1)))
     print("Turn boost off : " + str(session.hotwater.setBoostOff(WaterHeater_1)))
