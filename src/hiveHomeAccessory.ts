@@ -99,7 +99,7 @@ export class HiveHomeAccessory {
     switch (serviceName) {
       case this.kBoostName:
         if (newState === HotWaterMode.kOn) {
-          await this.hiveSession.hotwater.setBoostOn(this.hiveDevice, 2);
+          await this.hiveSession.hotwater.setBoostOn(this.hiveDevice, 60);
           Log.info('Enabled Hot Water Boost for 60 minutes');
         } else {
           await this.hiveSession.hotwater.setBoostOff(this.hiveDevice);
