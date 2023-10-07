@@ -3,7 +3,7 @@
 import {PlatformAccessory, Service} from 'homebridge';
 
 import {HiveHomeControllerPlatform} from './platform';
-import {HotWaterMode} from './util/hiveHelpers';
+import {HotWaterMode, translateModeForRequest} from './util/hiveHelpers';
 import {Log} from './util/log';
 
 /**
@@ -86,7 +86,7 @@ export class HiveHomeAccessory {
     if ((result = await this.hiveSession.hotwater.getBoost(this.hiveDevice))) {
       this.currentState[this.kBoostName] = result;
     }
-    if ((result = await this.hiveSession.hotwater.getState(this.hiveDevice))) {
+    if ((result = await this.hiveSession.hotwater.getMode(this.hiveDevice))) {
       this.currentState[this.kManualName] = result;
     }
     if (JSON.stringify(lastState) !== JSON.stringify(this.currentState)) {
@@ -95,7 +95,7 @@ export class HiveHomeAccessory {
     }
   }
 
-  async setDeviceState(serviceName: string, newState: string) {
+  async setDeviceState(serviceName: string, newState: HotWaterMode) {
     switch (serviceName) {
       case this.kBoostName:
         if (newState === HotWaterMode.kOn) {
@@ -107,7 +107,8 @@ export class HiveHomeAccessory {
         }
         break;
       case this.kManualName:
-        await this.hiveSession.hotwater.setMode(this.hiveDevice, newState);
+        await this.hiveSession.hotwater.setMode(
+            this.hiveDevice, translateModeForRequest(newState));
         Log.info('Set Hot Water mode to:', newState);
     }
     this.currentState[serviceName] = newState;

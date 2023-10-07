@@ -5,15 +5,23 @@ import {Log} from './log';
 
 const DEVICE_REQUIRED = 'DEVICE_SRP_AUTH';
 
+// Hot Water operation modes. Note that we have to send MANUAL to the server to
+// turn hot water on, but when we query the state it will return ON.
 export enum HotWaterMode {
   kOn = 'ON',
   kOff = 'OFF',
+  kManual = 'MANUAL',
   kSchedule = 'SCHEDULE'
 }
 
 let pyhiveapi;
 async function getPyHiveApi() {
   return (pyhiveapi || (pyhiveapi = await python('pyhiveapi')));
+}
+
+// Translate a mode to the format suitable for a request to the server.
+export function translateModeForRequest(mode: HotWaterMode) {
+  return (mode === HotWaterMode.kOn ? HotWaterMode.kManual : mode);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
