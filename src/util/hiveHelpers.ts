@@ -6,8 +6,8 @@ import {Log} from './log';
 const DEVICE_REQUIRED = 'DEVICE_SRP_AUTH';
 
 export enum HotWaterMode {
-  kManualOn = 'ON',
-  kManualOff = 'OFF',
+  kOn = 'ON',
+  kOff = 'OFF',
   kSchedule = 'SCHEDULE'
 }
 
