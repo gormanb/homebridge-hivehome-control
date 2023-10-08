@@ -44,16 +44,20 @@ export class HiveHomeAccessory {
     if (!this.accessory.getService(this.kManualName)) {
       this.accessory
           .addService(Service.Switch, this.kManualName, this.kManualName)
-          .setCharacteristic(Characteristic.Name, this.kManualName);
+          .addOptionalCharacteristic(Characteristic.ConfiguredName);
     }
-    this.manualService = <Service>this.accessory.getService(this.kManualName);
+    this.manualService =
+        (<Service>this.accessory.getService(this.kManualName))
+            .setCharacteristic(Characteristic.ConfiguredName, this.kManualName);
 
     if (!this.accessory.getService(this.kBoostName)) {
       this.accessory
           .addService(Service.Switch, this.kBoostName, this.kBoostName)
-          .setCharacteristic(Characteristic.Name, this.kBoostName);
+          .addOptionalCharacteristic(Characteristic.ConfiguredName);
     }
-    this.boostService = <Service>this.accessory.getService(this.kBoostName);
+    this.boostService =
+        (<Service>this.accessory.getService(this.kBoostName))
+            .setCharacteristic(Characteristic.ConfiguredName, this.kBoostName);
 
     //
     // Register handlers for all dynamic characteristics.

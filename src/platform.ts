@@ -85,7 +85,7 @@ export class HiveHomeControllerPlatform implements DynamicPlatformPlugin {
     for await (const hiveDevice of deviceList) {
       // Generate a unique id for the accessory from its device ID.
       const uuid = this.api.hap.uuid.generate(await hiveDevice['hiveID']);
-      const defaultDisplayName = await hiveDevice['hiveName'];
+      const displayName = (await hiveDevice['hiveName']) + ' : Hot Water';
 
       // See if an accessory with the same uuid already exists.
       let accessory =
@@ -93,8 +93,8 @@ export class HiveHomeControllerPlatform implements DynamicPlatformPlugin {
 
       // If the accessory does not yet exist, we need to create it.
       if (!accessory) {
-        Log.info('Adding new accessory:', defaultDisplayName);
-        accessory = new this.api.platformAccessory(defaultDisplayName, uuid);
+        Log.info('Adding new accessory:', displayName);
+        accessory = new this.api.platformAccessory(displayName, uuid);
         this.api.registerPlatformAccessories(
             PLUGIN_NAME, PLATFORM_NAME, [accessory]);
       }
