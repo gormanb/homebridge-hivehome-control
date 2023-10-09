@@ -3,7 +3,7 @@
 import {PlatformAccessory, Service} from 'homebridge';
 
 import {HiveHomeControllerPlatform} from './platform';
-import {HotWaterMode, translateModeForRequest} from './util/hiveHelpers';
+import {HotWaterMode, translateModeForRequest, updateHiveData} from './util/hiveHelpers';
 import {Log} from './util/log';
 
 /**
@@ -87,7 +87,7 @@ export class HiveHomeAccessory {
   // Get the device power state and push to Homekit when it changes.
   async updateDeviceState() {
     // Update the hive device from the server.
-    if (await this.hiveSession.updateData(this.hiveDevice)) {
+    if (await updateHiveData(this.hiveSession, this.hiveDevice)) {
       this.hiveDevice =
           await this.hiveSession.hotwater.getWaterHeater(this.hiveDevice);
     }

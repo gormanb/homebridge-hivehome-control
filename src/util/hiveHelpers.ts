@@ -71,7 +71,17 @@ export async function startHiveSession(config: PlatformConfig) {
   return hiveSession;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// Update Hive data and catch any exceptions that occur.
+export async function updateHiveData(hiveSession, hiveDevice) {
+  try {
+    return await hiveSession.updateData(hiveDevice);
+  } catch (ex) {
+    Log.debug('Error updating Hive data:', ex);
+  }
+  return false;
+}
+
+// Retrieve a list of all hot water devices from the Hive session.
 export async function getHiveDeviceList(hiveSession) {
   const waterHeaters = await hiveSession.deviceList['water_heater'];
   return waterHeaters;
