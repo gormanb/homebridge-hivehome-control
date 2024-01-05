@@ -3,13 +3,21 @@
   "pluginType": "platform",
   "singular": true,
   "schema": {
-    "type": "object",
-    "properties": {
-      "enableDebugLog": {
-        "title": "Debug Logging",
-        "type": "boolean",
-        "default": false
-      }
+    "hiveUsername": {
+      "title": "Username",
+      "type": "string",
+      "format": "email",
+      "required": true
+    },
+    "hivePassword": {
+      "title": "Password",
+      "type": "string",
+      "required": true
+    },
+    "enableDebugLog": {
+      "title": "Debug Logging",
+      "type": "boolean",
+      "default": false
     }
   }
 }

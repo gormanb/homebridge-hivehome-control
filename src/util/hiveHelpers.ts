@@ -30,8 +30,8 @@ export function translateModeForRequest(mode: HotWaterMode) {
 export async function startHiveSession(config: PlatformConfig) {
   const pyhiveapi = await getPyHiveApi();
   const hiveSession = await pyhiveapi.Hive$({
-    username: 'bernard.gorman@gmail.com',
-    password: '!KWbG9&MSDwNI40c',
+    username: config.hiveUsername,
+    password: config.hivePassword,
   });
 
   // Tell the auth object about the device if we have already registered it.
@@ -61,6 +61,7 @@ export async function startHiveSession(config: PlatformConfig) {
     await hiveSession.deviceLogin();
   } else {
     Log.error('Could not log in. Are you sure device is registered?');
+    return null;
   }
 
   // Set the minimum interval between refreshes from the server.

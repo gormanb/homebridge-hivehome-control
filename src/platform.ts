@@ -55,6 +55,12 @@ export class HiveHomeControllerPlatform implements DynamicPlatformPlugin {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private validateConfig(config: PlatformConfig): string[] {
     const validationErrors: string[] = [];
+    if (!config.hiveUsername) {
+      validationErrors.push('No Hive username specified');
+    }
+    if (!config.hivePassword) {
+      validationErrors.push('No Hive password specified');
+    }
     return validationErrors;
   }
 
@@ -77,8 +83,13 @@ export class HiveHomeControllerPlatform implements DynamicPlatformPlugin {
     // Discover accessories. If we fail to discover anything, schedule another
     // discovery attempt in the future.
     const hiveSession = await startHiveSession(this.config);
-    const deviceList = await getHiveDeviceList(hiveSession);
 
+    if (!hiveSession) {
+      Log.error('Login failed. Please check your credentials.');
+      return;
+    }
+
+    const deviceList = await getHiveDeviceList(hiveSession);
     Log.debug('Discovered devices:', deviceList);
 
     // Iterate over the discovered devices for the ones the user requested.
