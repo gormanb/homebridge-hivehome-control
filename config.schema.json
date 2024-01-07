@@ -2,6 +2,7 @@
   "pluginAlias": "HiveHomeController",
   "pluginType": "platform",
   "singular": true,
+  "headerDisplay": "Device Credentials are obtained via 2FA auth, by running 'npx homebridge-hivehome-control'",
   "schema": {
     "hiveUsername": {
       "title": "Username",
@@ -34,5 +35,34 @@
       "type": "boolean",
       "default": false
     }
-  }
+  },
+  "layout": [
+    {
+      "key": "user_credentials",
+      "title": "User Credentials",
+      "type": "section",
+      "items": [
+        "hiveUsername",
+        "hivePassword"
+      ]
+    },
+    {
+      "key": "device_credentials",
+      "title": "Device Credentials",
+      "type": "section",
+      "items": [
+        "deviceGroupKey",
+        "deviceKey",
+        "devicePassword"
+      ]
+    },
+    {
+      "key": "debug_options",
+      "title": "Debug Options",
+      "type": "section",
+      "items": [
+        "enableDebugLog"
+      ]
+    }
+  ]
 }
