@@ -61,6 +61,15 @@ export class HiveHomeControllerPlatform implements DynamicPlatformPlugin {
     if (!config.hivePassword) {
       validationErrors.push('No Hive password specified');
     }
+    if (!config.deviceGroupKey) {
+      validationErrors.push('No Hive Device Group Key specified');
+    }
+    if (!config.deviceKey) {
+      validationErrors.push('No Hive Device Key specified');
+    }
+    if (!config.devicePassword) {
+      validationErrors.push('No Hive Device Password specified');
+    }
     return validationErrors;
   }
 

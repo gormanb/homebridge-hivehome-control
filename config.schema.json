@@ -14,6 +14,21 @@
       "type": "string",
       "required": true
     },
+    "deviceGroupKey": {
+      "title": "Device Group Key",
+      "type": "string",
+      "required": true
+    },
+    "deviceKey": {
+      "title": "Device Key",
+      "type": "string",
+      "required": true
+    },
+    "devicePassword": {
+      "title": "Device Password",
+      "type": "string",
+      "required": true
+    },
     "enableDebugLog": {
       "title": "Debug Logging",
       "type": "boolean",
