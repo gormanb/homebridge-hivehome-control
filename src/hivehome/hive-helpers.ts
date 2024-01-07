@@ -1,33 +1,15 @@
 import {PlatformConfig} from 'homebridge';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import {pymport, PyObject} from 'pymport/proxified';
 
-import {Log} from './log';
+import {Log} from '../util/log';
 
-// The name of the device registered with Hive for device login.
-export const kHiveDeviceName = 'HomebridgeHiveHomeDevice';
-
-// Minimum duration between device status refreshes from the server.
-const kScanIntervalSecs = 15;
-
-// Hot Water operation modes. Note that we have to send MANUAL to the server to
-// turn hot water on, but when we query the state it will return ON.
-export enum HotWaterMode {
-  kOn = 'ON',
-  kOff = 'OFF',
-  kManual = 'MANUAL',
-  kSchedule = 'SCHEDULE'
-}
-
-// Import the pyhiveapi Python library via pymport.
-const pyhiveapi = pymport('pyhiveapi');
+import {DEVICE_LOGIN_REQUIRED, HotWaterMode, kChallengeName, kScanIntervalSecs, pyhiveapi} from './hive-api';
 
 // Translate a mode to the format suitable for a request to the server.
 export function translateModeForRequest(mode: HotWaterMode) {
   return (mode === HotWaterMode.kOn ? HotWaterMode.kManual : mode);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// Log into, configure and start a Hive session.
 export function startHiveSession(config: PlatformConfig) {
   const hiveSession = pyhiveapi.Hive({
     username: config.hiveUsername,
@@ -43,12 +25,11 @@ export function startHiveSession(config: PlatformConfig) {
   const login = hiveSession.login();
 
   // If the device is already registered, log in using its information.
-  const challengeName = login.get('ChallengeName').toString();
-  const DEVICE_REQUIRED = 'DEVICE_SRP_AUTH';
-  if (challengeName === DEVICE_REQUIRED) {
+  const challengeName = login.get(kChallengeName).toString();
+  if (challengeName === DEVICE_LOGIN_REQUIRED) {
     hiveSession.deviceLogin();
   } else {
-    Log.error('Could not log in. Are you sure device is registered?');
+    Log.error('Could not log in. Are you sure the device is registered?');
     Log.debug('Login replied with:', challengeName);
     return null;
   }

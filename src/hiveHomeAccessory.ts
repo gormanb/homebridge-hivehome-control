@@ -3,8 +3,9 @@
 import {PlatformAccessory, PlatformConfig, Service} from 'homebridge';
 import {PyObject} from 'pymport/proxified';
 
+import {HotWaterMode} from './hivehome/hive-api';
+import {translateModeForRequest, updateHiveData} from './hivehome/hive-helpers';
 import {HiveHomeControllerPlatform} from './platform';
-import {HotWaterMode, translateModeForRequest, updateHiveData} from './util/hiveHelpers';
 import {Log} from './util/log';
 
 /**
@@ -91,7 +92,7 @@ export class HiveHomeAccessory {
   }
 
   // Get the device power state and push to Homekit when it changes.
-  async updateDeviceState() {
+  private async updateDeviceState() {
     // Update the hive device from the server. If we fail, return immediately.
     if (!updateHiveData(this.hiveSession, this.hiveDevice)) {
       return;
@@ -112,7 +113,7 @@ export class HiveHomeAccessory {
     }
   }
 
-  async setDeviceState(serviceName: string, newState: HotWaterMode) {
+  private async setDeviceState(serviceName: string, newState: HotWaterMode) {
     switch (serviceName) {
       case this.kBoostName:
         if (newState === HotWaterMode.kOn) {
@@ -134,7 +135,7 @@ export class HiveHomeAccessory {
     this.updateHomekitState();
   }
 
-  async updateHomekitState() {
+  private async updateHomekitState() {
     this.boostService.updateCharacteristic(
         this.platform.Characteristic.On,
         this.currentState[this.kBoostName] === HotWaterMode.kOn);

@@ -1,9 +1,9 @@
 /* eslint-disable indent */
 import {API, Characteristic, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service} from 'homebridge';
 
+import {getHiveDeviceList, startHiveSession} from './hivehome/hive-helpers';
 import {HiveHomeAccessory} from './hiveHomeAccessory';
 import {PLATFORM_NAME, PLUGIN_NAME} from './settings';
-import {getHiveDeviceList, startHiveSession} from './util/hiveHelpers';
 import {Log} from './util/log';
 
 // How long we wait after a failed discovery attempt before retrying.
@@ -82,7 +82,7 @@ export class HiveHomeControllerPlatform implements DynamicPlatformPlugin {
    * from disk at startup. Here we add the cached accessories to a list which
    * will be examined later during the 'discoverDevices' phase.
    */
-  configureAccessory(accessory: PlatformAccessory) {
+  public configureAccessory(accessory: PlatformAccessory) {
     Log.info('Loading accessory from cache:', accessory.displayName);
     this.cachedAccessories.push(accessory);
   }
@@ -92,7 +92,7 @@ export class HiveHomeControllerPlatform implements DynamicPlatformPlugin {
    * once; previously created accessories must not be registered again, to
    * avoid "duplicate UUID" errors.
    */
-  async discoverDevices() {
+  private async discoverDevices() {
     // Discover accessories. If we fail to discover anything, schedule another
     // discovery attempt in the future.
     const hiveSession = startHiveSession(this.config);
