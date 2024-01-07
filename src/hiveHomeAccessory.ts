@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable indent */
 import {PlatformAccessory, Service} from 'homebridge';
+import {PyObject} from 'pymport/proxified';
 
 import {HiveHomeControllerPlatform} from './platform';
 import {HotWaterMode, translateModeForRequest, updateHiveData} from './util/hiveHelpers';
@@ -36,7 +37,8 @@ export class HiveHomeAccessory {
     const Characteristic = this.platform.Characteristic;
     const Service = this.platform.Service;
 
-    this.hiveDevice = accessory.context.device;
+    // We must explicitly convert the POJSO into a PyObject dict.
+    this.hiveDevice = PyObject.dict(accessory.context.device);
 
     //
     // Create one switch for each service offered by this hot water device.
@@ -86,21 +88,20 @@ export class HiveHomeAccessory {
 
   // Get the device power state and push to Homekit when it changes.
   async updateDeviceState() {
-    // Update the hive device from the server.
-    if (await updateHiveData(this.hiveSession, this.hiveDevice)) {
-      this.hiveDevice =
-          await this.hiveSession.hotwater.getWaterHeater(this.hiveDevice);
+    // Update the hive device from the server. If we fail, return immediately.
+    if (!updateHiveData(this.hiveSession, this.hiveDevice)) {
+      return;
     }
+
+    // Retrieve the newly-updated device data.
+    this.hiveDevice = this.hiveSession.hotwater.getWaterHeater(this.hiveDevice);
 
     // Check whether any attributes have changed.
     const lastState = Object.assign({}, this.currentState);
-    let result;
-    if ((result = await this.hiveSession.hotwater.getBoost(this.hiveDevice))) {
-      this.currentState[this.kBoostName] = result;
-    }
-    if ((result = await this.hiveSession.hotwater.getMode(this.hiveDevice))) {
-      this.currentState[this.kManualName] = result;
-    }
+    this.currentState[this.kBoostName] =
+        this.hiveSession.hotwater.getBoost(this.hiveDevice).toString();
+    this.currentState[this.kManualName] =
+        this.hiveSession.hotwater.getMode(this.hiveDevice).toString();
     if (JSON.stringify(lastState) !== JSON.stringify(this.currentState)) {
       Log.debug('Updating state:', this.currentState);
       this.updateHomekitState();
@@ -111,17 +112,17 @@ export class HiveHomeAccessory {
     switch (serviceName) {
       case this.kBoostName:
         if (newState === HotWaterMode.kOn) {
-          await this.hiveSession.hotwater.setBoostOn(
+          this.hiveSession.hotwater.setBoostOn(
               this.hiveDevice, HiveHomeAccessory.kBoostTimeMins);
           Log.info(`Enabled Hot Water Boost for ${
               HiveHomeAccessory.kBoostTimeMins} minutes`);
         } else {
-          await this.hiveSession.hotwater.setBoostOff(this.hiveDevice);
+          this.hiveSession.hotwater.setBoostOff(this.hiveDevice);
           Log.info('Turned off Hot Water Boost');
         }
         break;
       case this.kManualName:
-        await this.hiveSession.hotwater.setMode(
+        this.hiveSession.hotwater.setMode(
             this.hiveDevice, translateModeForRequest(newState));
         Log.info('Set Hot Water mode to:', newState);
     }

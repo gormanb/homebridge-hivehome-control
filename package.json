@@ -29,7 +29,6 @@
     "homebridge-plugin"
   ],
   "dependencies": {
-    "pythonia": "^1.0.4",
     "enquirer": "^2.4.1",
     "pymport": "^1.4.3"
   },
