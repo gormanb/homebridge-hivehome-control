@@ -70,6 +70,10 @@ export class HiveHomeControllerPlatform implements DynamicPlatformPlugin {
     if (!config.devicePassword) {
       validationErrors.push('No Hive Device Password specified');
     }
+    const hwBoostTime = config.hotWaterBoostMins;
+    if (!Number.isInteger(hwBoostTime) || hwBoostTime <= 0) {
+      validationErrors.push('Hot Water Boost Duration is not an integer > 0');
+    }
     return validationErrors;
   }
 

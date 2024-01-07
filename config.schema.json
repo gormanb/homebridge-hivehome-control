@@ -30,6 +30,13 @@
       "type": "string",
       "required": true
     },
+    "hotWaterBoostMins": {
+      "title": "Hot Water Boost Duration",
+      "placeholder": "Time in minutes",
+      "type": "integer",
+      "required": true,
+      "default": 60
+    },
     "enableDebugLog": {
       "title": "Debug Logging",
       "type": "boolean",
@@ -54,6 +61,14 @@
         "deviceGroupKey",
         "deviceKey",
         "devicePassword"
+      ]
+    },
+    {
+      "key": "hive_options",
+      "title": "Hive Options",
+      "type": "section",
+      "items": [
+        "hotWaterBoostMins"
       ]
     },
     {

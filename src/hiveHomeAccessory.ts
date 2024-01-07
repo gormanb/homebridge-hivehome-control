@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable indent */
-import {PlatformAccessory, Service} from 'homebridge';
+import {PlatformAccessory, PlatformConfig, Service} from 'homebridge';
 import {PyObject} from 'pymport/proxified';
 
 import {HiveHomeControllerPlatform} from './platform';
@@ -13,7 +13,8 @@ import {Log} from './util/log';
  */
 export class HiveHomeAccessory {
   private static readonly kRefreshInterval = 5000;
-  private static readonly kBoostTimeMins = 60;
+
+  private readonly config: PlatformConfig;
 
   private readonly kManualName = 'Manual';
   private readonly kBoostName = 'Boost';
@@ -39,6 +40,9 @@ export class HiveHomeAccessory {
 
     // We must explicitly convert the POJSO into a PyObject dict.
     this.hiveDevice = PyObject.dict(accessory.context.device);
+
+    // Store a reference to the plugin configuration for later use.
+    this.config = platform.config;
 
     //
     // Create one switch for each service offered by this hot water device.
@@ -113,9 +117,9 @@ export class HiveHomeAccessory {
       case this.kBoostName:
         if (newState === HotWaterMode.kOn) {
           this.hiveSession.hotwater.setBoostOn(
-              this.hiveDevice, HiveHomeAccessory.kBoostTimeMins);
+              this.hiveDevice, this.config.hotWaterBoostMins);
           Log.info(`Enabled Hot Water Boost for ${
-              HiveHomeAccessory.kBoostTimeMins} minutes`);
+              this.config.hotWaterBoostMins} minutes`);
         } else {
           this.hiveSession.hotwater.setBoostOff(this.hiveDevice);
           Log.info('Turned off Hot Water Boost');
