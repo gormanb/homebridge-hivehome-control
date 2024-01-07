@@ -3,10 +3,11 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-console */
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import {pymport, PyObject} from 'pymport/proxified';
 import enquirer_default from 'enquirer';
-import {python} from 'pythonia';
 
-const pyhiveapi = await python('pyhiveapi');
+const pyhiveapi = pymport('pyhiveapi');
 const {prompt} = enquirer_default;
 
 // The name of the device registered with Hive for device login.
@@ -27,28 +28,28 @@ const hiveCredentials = await prompt([
 ]);
 
 // Use these credentials to create a Hive session.
-const hiveSession = await pyhiveapi.Hive$(hiveCredentials);
+const hiveSession = pyhiveapi.Hive(hiveCredentials);
 
 async function do2faAuth() {
   // Perform the initial login with just username and password.
-  const login = await hiveSession.login();
+  const login = hiveSession.login();
 
   // Check whether the login requested a 2FA authentication.
-  const challengeName = await login.get('ChallengeName');
-  if (challengeName === await pyhiveapi.SMS_REQUIRED) {
+  const challengeName = login.get('ChallengeName').toString();
+  if (challengeName === pyhiveapi.SMS_REQUIRED.toString()) {
     const sms2fa = await prompt({
       type: 'input',
       name: 'code',
       message: '2FA required. Check your phone for an SMS code and enter it:',
     });
     try {
-      await hiveSession.sms2fa(sms2fa.code, login);
+      hiveSession.sms2fa(sms2fa.code, login);
     } catch (ex) {
       console.log('2FA failed with error:', ex.message);
       return false;
     }
-    await hiveSession.auth.device_registration(kHiveDeviceName);
-    await hiveSession.deviceLogin();
+    hiveSession.auth.device_registration(kHiveDeviceName);
+    hiveSession.deviceLogin();
   } else {
     console.log('Unexpected response from server: ', challengeName);
     return false;
@@ -62,12 +63,9 @@ while (!(await do2faAuth())) {
 }
 
 // Print the device data for users to supply in the Homebridge config.
-const [groupKey, devKey, devPwd] = await hiveSession.auth.get_device_data();
+const [groupKey, devKey, devPwd] = hiveSession.auth.get_device_data();
 console.log('Set the following in the plugin\'s configuration screen:', {
-  'Device Group Key': await groupKey,
-  'Device Key': await devKey,
-  'Device Password': await devPwd,
+  'Device Group Key': groupKey.toString(),
+  'Device Key': devKey.toString(),
+  'Device Password': devPwd.toString(),
 });
-
-// Exit python to allow node to exit.
-python.exit();
