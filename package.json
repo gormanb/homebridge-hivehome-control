@@ -23,7 +23,7 @@
     "watch": "npm run build && npm link && nodemon",
     "build": "rimraf ./dist && tsc",
     "prepublishOnly": "npm run lint && npm run build",
-    "postinstall": "npx pympip3 install pyhiveapi"
+    "postinstall": "npx pympip3 install pyhiveapi~=0.5.16"
   },
   "keywords": [
     "homebridge-plugin"
