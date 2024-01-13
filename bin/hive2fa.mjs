@@ -30,36 +30,39 @@ const hiveCredentials = await prompt([
 // Use these credentials to create a Hive session.
 const hiveSession = pyhiveapi.Hive(hiveCredentials);
 
+// Function to attempt 2FA authentication.
 async function do2faAuth() {
   // Perform the initial login with just username and password.
   const login = hiveSession.login();
 
   // Check whether the login requested a 2FA authentication.
   const challengeName = login.get('ChallengeName').toString();
-  if (challengeName === pyhiveapi.SMS_REQUIRED.toString()) {
-    const sms2fa = await prompt({
-      type: 'input',
-      name: 'code',
-      message: '2FA required. Check your phone for an SMS code and enter it:',
-    });
-    try {
-      hiveSession.sms2fa(sms2fa.code, login);
-    } catch (ex) {
-      console.log('2FA failed with error:', ex.message);
-      return false;
-    }
-    hiveSession.auth.device_registration(kHiveDeviceName);
-    hiveSession.deviceLogin();
-  } else {
-    console.log('Unexpected response from server: ', challengeName);
+  if (challengeName !== pyhiveapi.SMS_REQUIRED.toString()) {
+    console.log(`Server requested '${challengeName}' not 2FA, exiting`);
+    process.exit();
+  }
+  // Prompt the user to enter the 2FA code.
+  const sms2fa = await prompt({
+    type: 'input',
+    name: 'code',
+    message: '2FA required. Check your phone for an SMS code and enter it:',
+  });
+  // Try to log in using the supplied code.
+  try {
+    hiveSession.sms2fa(sms2fa.code, login);
+  } catch (ex) {
+    console.log('2FA failed with error:', ex.message);
     return false;
   }
+  // Register the deice and use the device details to log in.
+  hiveSession.auth.device_registration(kHiveDeviceName);
+  hiveSession.deviceLogin();
   return true;
 }
 
 // If the 2FA auth doesn't work, keep trying.
 while (!(await do2faAuth())) {
-  console.log('Retrying 2FA auth...');
+  console.log('Retrying auth...');
 }
 
 // Print the device data for users to supply in the Homebridge config.
