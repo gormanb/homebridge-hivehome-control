@@ -47,9 +47,7 @@ export function updateHiveData(hiveSession, hiveDevice) {
   try {
     return hiveSession.updateData(hiveDevice);
   } catch (ex) {
-    // Do nothing here. We expect periodic failures at the moment due to a race
-    // condition caused by the unasync packaging of pyhiveapi.
-    // Log.debug('Error updating Hive data:', ex);
+    Log.debug('Error updating Hive data:', ex);
   }
   return false;
 }
