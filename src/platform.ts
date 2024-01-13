@@ -52,7 +52,6 @@ export class HiveHomeControllerPlatform implements DynamicPlatformPlugin {
   }
 
   // Validate that the plugin configuration conforms to the expected format.
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private validateConfig(config: PlatformConfig): string[] {
     const validationErrors: string[] = [];
     if (!config.hiveUsername) {
@@ -105,11 +104,11 @@ export class HiveHomeControllerPlatform implements DynamicPlatformPlugin {
     const deviceList = getHiveDeviceList(hiveSession);
     Log.debug('Discovered devices:', deviceList);
 
-    // Iterate over the discovered devices for the ones the user requested.
+    // Iterate over the discovered devices and create handlers for each.
     for (const hiveDevice of deviceList) {
       // Generate a unique id for the accessory from its device ID.
       const uuid = this.api.hap.uuid.generate(hiveDevice['hiveID']);
-      const displayName = (hiveDevice['hiveName']) + ' : Hot Water';
+      const displayName = `${hiveDevice['hiveName']} : Hot Water`;
 
       // See if an accessory with the same uuid already exists.
       let accessory =
