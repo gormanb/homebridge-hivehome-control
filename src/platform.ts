@@ -1,8 +1,10 @@
 /* eslint-disable indent */
 import {API, Characteristic, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service} from 'homebridge';
 
-import {getHiveDeviceList, startHiveSession} from './hivehome/hive-helpers';
-import {HiveHomeAccessory} from './hiveHomeAccessory';
+import {HiveAccessory} from './hivehome/devices/hiveAccessory';
+import {HiveHeatingAccessory} from './hivehome/devices/hiveHeatingAccessory';
+import {HiveHotWaterAccessory} from './hivehome/devices/hiveHotWaterAccessory';
+import {getHiveDeviceList, kHiveDeviceNames, startHiveSession} from './hivehome/hive-helpers';
 import {PLATFORM_NAME, PLUGIN_NAME} from './settings';
 import {Log} from './util/log';
 
@@ -22,7 +24,13 @@ export class HiveHomeControllerPlatform implements DynamicPlatformPlugin {
   public readonly cachedAccessories: PlatformAccessory[] = [];
 
   // This array records the handlers which wrap each accessory.
-  public readonly accessoryHandlers: HiveHomeAccessory[] = [];
+  public readonly accessoryHandlers: HiveAccessory[] = [];
+
+  // Classes for reflective instantiation based on Hive type.
+  private readonly hiveAccessories = {
+    'heating': HiveHeatingAccessory,
+    'hotwater': HiveHotWaterAccessory,
+  };
 
   constructor(
       private readonly logger: Logger,
@@ -69,9 +77,14 @@ export class HiveHomeControllerPlatform implements DynamicPlatformPlugin {
     if (!config.devicePassword) {
       validationErrors.push('No Hive Device Password specified');
     }
-    const hwBoostTime = config.hotWaterBoostMins;
-    if (!Number.isInteger(hwBoostTime) || hwBoostTime <= 0) {
-      validationErrors.push('Hot Water Boost Duration is not an integer > 0');
+    if (config.heatingBoostMins <= 0) {
+      validationErrors.push('Heating Boost Duration is not > 0');
+    }
+    if (config.heatingBoostTemp <= 0) {
+      validationErrors.push('Heating Boost Temperature is not > 0');
+    }
+    if (config.hotWaterBoostMins <= 0) {
+      validationErrors.push('Hot Water Boost Duration is not > 0');
     }
     return validationErrors;
   }
@@ -108,7 +121,9 @@ export class HiveHomeControllerPlatform implements DynamicPlatformPlugin {
     for (const hiveDevice of deviceList) {
       // Generate a unique id for the accessory from its device ID.
       const uuid = this.api.hap.uuid.generate(hiveDevice['hiveID']);
-      const displayName = `${hiveDevice['hiveName']} : Hot Water`;
+      const deviceType = hiveDevice['hiveType'];
+      const displayName =
+          `${hiveDevice['hiveName']} ${kHiveDeviceNames[deviceType]}`;
 
       // See if an accessory with the same uuid already exists.
       let accessory =
@@ -128,7 +143,7 @@ export class HiveHomeControllerPlatform implements DynamicPlatformPlugin {
 
       // Create the accessory handler for this accessory.
       this.accessoryHandlers.push(
-          new HiveHomeAccessory(this, accessory, hiveSession));
+          new this.hiveAccessories[deviceType](this, accessory, hiveSession));
     }
 
     if (this.accessoryHandlers.length === 0) {

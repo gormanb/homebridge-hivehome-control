@@ -31,11 +31,25 @@
       "required": true
     },
     "hotWaterBoostMins": {
-      "title": "Hot Water Boost Duration",
+      "title": "Boost Duration",
       "placeholder": "Time in minutes",
       "type": "integer",
       "required": true,
       "default": 60
+    },
+    "heatingBoostMins": {
+      "title": "Boost Duration",
+      "placeholder": "Time in minutes",
+      "type": "integer",
+      "required": true,
+      "default": 60
+    },
+    "heatingBoostTemp": {
+      "title": "Boost Temperature",
+      "placeholder": "Temperature in degrees",
+      "type": "number",
+      "required": true,
+      "default": 21
     },
     "enableDebugLog": {
       "title": "Debug Logging",
@@ -48,6 +62,8 @@
       "key": "user_credentials",
       "title": "User Credentials",
       "type": "section",
+      "expandable": true,
+      "expanded": false,
       "items": [
         "hiveUsername",
         "hivePassword"
@@ -57,6 +73,8 @@
       "key": "device_credentials",
       "title": "Device Credentials",
       "type": "section",
+      "expandable": true,
+      "expanded": false,
       "items": [
         "deviceGroupKey",
         "deviceKey",
@@ -64,9 +82,22 @@
       ]
     },
     {
-      "key": "hive_options",
-      "title": "Hive Options",
+      "key": "heating_options",
+      "title": "Heating Options",
       "type": "section",
+      "expandable": true,
+      "expanded": true,
+      "items": [
+        "heatingBoostMins",
+        "heatingBoostTemp"
+      ]
+    },
+    {
+      "key": "hot_water_options",
+      "title": "Hot Water Options",
+      "type": "section",
+      "expandable": true,
+      "expanded": true,
       "items": [
         "hotWaterBoostMins"
       ]
@@ -75,6 +106,8 @@
       "key": "debug_options",
       "title": "Debug Options",
       "type": "section",
+      "expandable": true,
+      "expanded": false,
       "items": [
         "enableDebugLog"
       ]

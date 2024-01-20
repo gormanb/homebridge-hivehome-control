@@ -16,9 +16,9 @@ export const kChallengeName = 'ChallengeName';
 // The string returned from the server to indicate a device login is required.
 export const DEVICE_LOGIN_REQUIRED = 'DEVICE_SRP_AUTH';
 
-// Hot Water operation modes. Note that we have to send MANUAL to the server to
-// turn hot water on, but when we query the state it will return ON.
-export enum HotWaterMode {
+// Heating / Hot Water operation modes. Note that we have to send MANUAL to the
+// server to turn hot water on, but when we query the state it will return ON.
+export enum HeatingMode {
   kOn = 'ON',
   kOff = 'OFF',
   kManual = 'MANUAL',

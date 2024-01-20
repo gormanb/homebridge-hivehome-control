@@ -2,11 +2,17 @@ import {PlatformConfig} from 'homebridge';
 
 import {Log} from '../util/log';
 
-import {DEVICE_LOGIN_REQUIRED, HotWaterMode, kChallengeName, kScanIntervalSecs, pyhiveapi} from './hive-api';
+import {DEVICE_LOGIN_REQUIRED, HeatingMode, kChallengeName, kScanIntervalSecs, pyhiveapi} from './hive-api';
+
+// Map of hiveType to device display names.
+export const kHiveDeviceNames = {
+  'heating': 'Heating',
+  'hotwater': 'Hot Water',
+};
 
 // Translate a mode to the format suitable for a request to the server.
-export function translateModeForRequest(mode: HotWaterMode) {
-  return (mode === HotWaterMode.kOn ? HotWaterMode.kManual : mode);
+export function translateModeForRequest(mode: HeatingMode) {
+  return (mode === HeatingMode.kOn ? HeatingMode.kManual : mode);
 }
 
 // Log into, configure and start a Hive session.
@@ -55,5 +61,6 @@ export function updateHiveData(hiveSession, hiveDevice) {
 // Retrieve a list of all hot water devices from the Hive session.
 export function getHiveDeviceList(hiveSession) {
   const waterHeaters = hiveSession.deviceList.__getitem__('water_heater');
-  return waterHeaters.toJS();
+  const roomHeaters = hiveSession.deviceList.__getitem__('climate');
+  return roomHeaters.toJS().concat(waterHeaters.toJS());
 }
