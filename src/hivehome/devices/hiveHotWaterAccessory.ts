@@ -36,26 +36,20 @@ export class HiveHotWaterAccessory extends HiveAccessory {
     // Create one switch for each service offered by this hot water device.
     //
     if (!this.accessory.getService(this.kManualName)) {
+      const manualConName = `${this.accessory.displayName} ${this.kManualName}`;
       this.accessory
           .addService(Service.Switch, this.kManualName, this.kManualName)
-          .addOptionalCharacteristic(Characteristic.ConfiguredName);
+          .setCharacteristic(Characteristic.ConfiguredName, manualConName);
     }
-    this.manualService =
-        (<Service>this.accessory.getService(this.kManualName))
-            .setCharacteristic(
-                Characteristic.ConfiguredName,
-                `${this.accessory.displayName} ${this.kManualName}`);
+    this.manualService = <Service>this.accessory.getService(this.kManualName);
 
     if (!this.accessory.getService(this.kBoostName)) {
+      const boostConName = `${this.accessory.displayName} ${this.kBoostName}`;
       this.accessory
           .addService(Service.Switch, this.kBoostName, this.kBoostName)
-          .addOptionalCharacteristic(Characteristic.ConfiguredName);
+          .setCharacteristic(Characteristic.ConfiguredName, boostConName);
     }
-    this.boostService =
-        (<Service>this.accessory.getService(this.kBoostName))
-            .setCharacteristic(
-                Characteristic.ConfiguredName,
-                `${this.accessory.displayName} ${this.kBoostName}`);
+    this.boostService = <Service>this.accessory.getService(this.kBoostName);
 
     //
     // Register handlers for all dynamic characteristics.
