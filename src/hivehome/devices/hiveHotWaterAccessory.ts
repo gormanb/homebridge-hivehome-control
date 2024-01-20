@@ -37,17 +37,15 @@ export class HiveHotWaterAccessory extends HiveAccessory {
     //
     if (!this.accessory.getService(this.kManualName)) {
       const manualConName = `${this.accessory.displayName} ${this.kManualName}`;
-      this.accessory
-          .addService(Service.Switch, this.kManualName, this.kManualName)
-          .setCharacteristic(Characteristic.ConfiguredName, manualConName);
+      this.addService(
+          Service.Switch, this.kManualName, this.kManualName, manualConName);
     }
     this.manualService = <Service>this.accessory.getService(this.kManualName);
 
     if (!this.accessory.getService(this.kBoostName)) {
       const boostConName = `${this.accessory.displayName} ${this.kBoostName}`;
-      this.accessory
-          .addService(Service.Switch, this.kBoostName, this.kBoostName)
-          .setCharacteristic(Characteristic.ConfiguredName, boostConName);
+      this.addService(
+          Service.Switch, this.kBoostName, this.kBoostName, boostConName);
     }
     this.boostService = <Service>this.accessory.getService(this.kBoostName);
 

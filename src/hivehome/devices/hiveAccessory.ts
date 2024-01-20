@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable indent */
-import {PlatformAccessory, PlatformConfig} from 'homebridge';
+import {PlatformAccessory, PlatformConfig, Service} from 'homebridge';
 import {PyObject} from 'pymport/proxified';
 
 import {HiveHomeControllerPlatform} from '../../platform';
@@ -32,6 +32,19 @@ export class HiveAccessory {
     // Begin monitoring the device for state changes.
     this.updateDeviceState();
     setInterval(() => this.updateDeviceState(), HiveAccessory.kRefreshInterval);
+  }
+
+  // Adds a new service to the device, and returns it.
+  protected addService(type, name, subType, configuredName): Service {
+    // Convenience references to Characteristic and Service.
+    const Characteristic = this.platform.Characteristic;
+
+    // Add the new service, then add ConfiguredName as a new Characteristic.
+    const newService = this.accessory.addService(type, name, subType);
+    newService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+    newService.setCharacteristic(Characteristic.ConfiguredName, configuredName);
+
+    return newService;
   }
 
   // Get the device power state and push to Homekit when it changes.
