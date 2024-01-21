@@ -8,7 +8,7 @@ This plugin exposes [Hive Home](https://www.hivehome.com/) features that are not
 Install the plugin via the Homebridge UI. Before it can be used, the plugin configuration must be populated with your Hive `User Credentials` as well as the `Device Credentials` obtained via SMS two-factor authentication. To obtain the `Device Credentials`, do the following:
 
 - From a terminal on your Homebridge machine, run `npx homebridge-hivehome-control`
-- Follow the on-screen instructions. Enter your Hive `username` and `password`, then enter the 2FA code you receive via SMA.
+- Follow the on-screen instructions. Enter your Hive `username` and `password`, then enter the 2FA code you receive via SMS.
 - Once this is done, the script will show your `Device Group Key`, `Device Key` and `Device Password` credentials on screen.
 - Copy these values exactly as they appear into the relevant fields of the plugin's configuration screen.
 
