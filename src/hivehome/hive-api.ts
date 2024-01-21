@@ -1,9 +1,3 @@
-// Import the pre-proxified version of pymport.
-import {pymport} from 'pymport/proxified';
-
-// Export the actual pyhiveapi library via pymport.
-export const pyhiveapi = pymport('pyhiveapi');
-
 // The name of the device registered with Hive for device login.
 export const kHiveDeviceName = 'HomebridgeHiveHomeDevice';
 

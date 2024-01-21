@@ -67,15 +67,16 @@ export class HiveHotWaterAccessory extends HiveAccessory {
   }
 
   // Get the device power state and push to Homekit when it changes.
-  protected updateDeviceAndCurrentState() {
+  protected async updateDeviceAndCurrentState() {
     // Retrieve the newly-updated device data...
-    this.hiveDevice = this.hiveSession.hotwater.getWaterHeater(this.hiveDevice);
+    this.hiveDevice =
+        await this.hiveSession.hotwater.getWaterHeater(this.hiveDevice);
 
     // ... and use it to populate the current state.
     this.currentState[this.kBoostName] =
-        this.hiveSession.hotwater.getBoost(this.hiveDevice).toString();
+        await this.hiveSession.hotwater.getBoost(this.hiveDevice);
     this.currentState[this.kManualName] =
-        this.hiveSession.hotwater.getMode(this.hiveDevice).toString();
+        await this.hiveSession.hotwater.getMode(this.hiveDevice);
   }
 
   // Push the current state to Homekit.
@@ -93,17 +94,17 @@ export class HiveHotWaterAccessory extends HiveAccessory {
     switch (serviceName) {
       case this.kBoostName:
         if (newState === HeatingMode.kOn) {
-          this.hiveSession.hotwater.setBoostOn(
+          await this.hiveSession.hotwater.setBoostOn(
               this.hiveDevice, this.config.hotWaterBoostMins);
           Log.info(`Enabled ${this.accessory.displayName} Boost for ${
               this.config.hotWaterBoostMins} minutes`);
         } else {
-          this.hiveSession.hotwater.setBoostOff(this.hiveDevice);
+          await this.hiveSession.hotwater.setBoostOff(this.hiveDevice);
           Log.info(`Turned off ${this.accessory.displayName} Boost`);
         }
         break;
       case this.kManualName:
-        this.hiveSession.hotwater.setMode(
+        await this.hiveSession.hotwater.setMode(
             this.hiveDevice, translateModeForRequest(newState));
         Log.info(`Set ${this.accessory.displayName} mode:`, newState);
     }

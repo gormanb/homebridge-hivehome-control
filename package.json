@@ -22,7 +22,7 @@
     "watch": "npm run build && npm link && nodemon",
     "build": "rimraf ./dist && tsc",
     "prepublishOnly": "npm run lint && npm run build",
-    "postinstall": "npx pympip3 install git+https://github.com/gormanb/Pyhiveapi.git@v0.5.16.1"
+    "postinstall": "python3 -m pip install git+https://github.com/gormanb/Pyhiveapi.git@v0.5.16.1"
   },
   "keywords": [
     "homebridge-plugin",
@@ -35,7 +35,7 @@
   ],
   "dependencies": {
     "enquirer": "^2.4.1",
-    "pymport": "^1.4.3"
+    "pythonia": "^1.1.2"
   },
   "devDependencies": {
     "@types/node": "^18.16.20",

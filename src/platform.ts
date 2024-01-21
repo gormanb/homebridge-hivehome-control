@@ -108,23 +108,23 @@ export class HiveHomeControllerPlatform implements DynamicPlatformPlugin {
   private async discoverDevices() {
     // Discover accessories. If we fail to discover anything, schedule another
     // discovery attempt in the future.
-    const hiveSession = startHiveSession(this.config);
+    const hiveSession = await startHiveSession(this.config);
 
     if (!hiveSession) {
       Log.error('Login failed. Please check your credentials.');
       return;
     }
 
-    const deviceList = getHiveDeviceList(hiveSession);
+    const deviceList = await getHiveDeviceList(hiveSession);
     Log.debug('Discovered devices:', deviceList);
 
     // Iterate over the discovered devices and create handlers for each.
-    for (const hiveDevice of deviceList) {
+    for await (const hiveDevice of deviceList) {
       // Generate a unique id for the accessory from its device ID.
-      const uuid = this.api.hap.uuid.generate(hiveDevice[HiveData.kId]);
-      const deviceType = hiveDevice[HiveData.kType];
+      const uuid = this.api.hap.uuid.generate(await hiveDevice[HiveData.kId]);
+      const deviceType = await hiveDevice[HiveData.kType];
       const displayName =
-          `${hiveDevice[HiveData.kName]} ${HiveTypeName[deviceType]}`;
+          `${await hiveDevice[HiveData.kName]} ${HiveTypeName[deviceType]}`;
 
       // See if an accessory with the same uuid already exists.
       let accessory =

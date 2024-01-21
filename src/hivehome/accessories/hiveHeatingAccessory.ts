@@ -52,13 +52,14 @@ export class HiveHeatingAccessory extends HiveAccessory {
   }
 
   // Get the device power state and push to Homekit when it changes.
-  protected updateDeviceAndCurrentState() {
+  protected async updateDeviceAndCurrentState() {
     // Retrieve the newly-updated device data...
-    this.hiveDevice = this.hiveSession.heating.getClimate(this.hiveDevice);
+    this.hiveDevice =
+        await this.hiveSession.heating.getClimate(this.hiveDevice);
 
     // ... and use it to populate the current state.
     this.currentState[this.kBoostName] =
-        this.hiveSession.heating.getBoostStatus(this.hiveDevice).toString();
+        await this.hiveSession.heating.getBoostStatus(this.hiveDevice);
   }
 
   // Push the current state to Homekit.
@@ -70,14 +71,14 @@ export class HiveHeatingAccessory extends HiveAccessory {
 
   private async setDeviceState(serviceName: string, newState: HeatingMode) {
     if (newState === HeatingMode.kOn) {
-      this.hiveSession.heating.setBoostOn(
+      await this.hiveSession.heating.setBoostOn(
           this.hiveDevice, this.config.heatingBoostMins,
           this.config.heatingBoostTemp);
       Log.info(`Enabled ${this.accessory.displayName} Boost to ${
           this.config.heatingBoostTemp} degrees for ${
           this.config.heatingBoostMins} minutes`);
     } else {
-      this.hiveSession.heating.setBoostOff(this.hiveDevice);
+      await this.hiveSession.heating.setBoostOff(this.hiveDevice);
       Log.info(`Turned off ${this.accessory.displayName} Boost`);
     }
     this.currentState[serviceName] = newState;

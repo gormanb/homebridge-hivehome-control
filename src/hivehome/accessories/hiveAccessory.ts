@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable indent */
 import {PlatformAccessory, PlatformConfig, Service} from 'homebridge';
-import {PyObject} from 'pymport/proxified';
 
 import {HiveHomeControllerPlatform} from '../../platform';
 import {Log} from '../../util/log';
@@ -23,8 +22,8 @@ export class HiveAccessory {
       protected readonly accessory: PlatformAccessory,
       protected readonly hiveSession: any,
   ) {
-    // We must explicitly convert the POJSO into a PyObject dict.
-    this.hiveDevice = PyObject.dict(accessory.context.device);
+    // Retrieve a reference to the hiveDevice from the accessory.
+    this.hiveDevice = accessory.context.device;
 
     // Store a reference to the plugin configuration for later use.
     this.config = platform.config;
@@ -50,7 +49,7 @@ export class HiveAccessory {
   // Get the device power state and push to Homekit when it changes.
   private async updateDeviceState() {
     // Update the hive device from the server.
-    updateHiveData(this.hiveSession, this.hiveDevice);
+    await updateHiveData(this.hiveSession, this.hiveDevice);
 
     // Check whether the derived class' services have been initialized.
     if (!this.servicesReady()) {
@@ -60,7 +59,7 @@ export class HiveAccessory {
 
     // Retrieve the newly-updated device data.
     const lastState = Object.assign({}, this.currentState);
-    this.updateDeviceAndCurrentState();
+    await this.updateDeviceAndCurrentState();
 
     // Check whether any attributes have changed.
     if (JSON.stringify(lastState) !== JSON.stringify(this.currentState)) {
@@ -76,7 +75,7 @@ export class HiveAccessory {
 
   // Implemented by subclasses. Updates this.hiveDevice and this.currentState
   // based on the recently-updated Hive data.
-  protected updateDeviceAndCurrentState() {
+  protected async updateDeviceAndCurrentState() {
     // TBI
   }
 
