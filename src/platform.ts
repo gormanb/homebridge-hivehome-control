@@ -1,9 +1,9 @@
 /* eslint-disable indent */
 import {API, Characteristic, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service} from 'homebridge';
 
-import {HiveAccessory} from './hivehome/devices/hiveAccessory';
-import {HiveHeatingAccessory} from './hivehome/devices/hiveHeatingAccessory';
-import {HiveHotWaterAccessory} from './hivehome/devices/hiveHotWaterAccessory';
+import {HiveAccessory} from './hivehome/accessories/hiveAccessory';
+import {HiveHeatingAccessory} from './hivehome/accessories/hiveHeatingAccessory';
+import {HiveHotWaterAccessory} from './hivehome/accessories/hiveHotWaterAccessory';
 import {getHiveDeviceList, kHiveDeviceNames, startHiveSession} from './hivehome/hive-helpers';
 import {PLATFORM_NAME, PLUGIN_NAME} from './settings';
 import {Log} from './util/log';
