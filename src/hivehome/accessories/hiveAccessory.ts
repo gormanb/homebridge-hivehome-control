@@ -49,10 +49,8 @@ export class HiveAccessory {
 
   // Get the device power state and push to Homekit when it changes.
   private async updateDeviceState() {
-    // Update the hive device from the server. If we fail, return immediately.
-    if (!updateHiveData(this.hiveSession, this.hiveDevice)) {
-      return;
-    }
+    // Update the hive device from the server.
+    updateHiveData(this.hiveSession, this.hiveDevice);
 
     // Check whether the derived class' services have been initialized.
     if (!this.servicesReady()) {
