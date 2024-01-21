@@ -1,5 +1,4 @@
 {
-  "private": true,
   "displayName": "Homebridge Hive Home Control",
   "name": "homebridge-hivehome-control",
   "version": "1.0.0",
@@ -26,7 +25,13 @@
     "postinstall": "npx pympip3 install git+https://github.com/gormanb/Pyhiveapi.git@v0.5.16.1"
   },
   "keywords": [
-    "homebridge-plugin"
+    "homebridge-plugin",
+    "hive",
+    "homekit",
+    "hot water",
+    "heating",
+    "thermostat",
+    "smart home"
   ],
   "dependencies": {
     "enquirer": "^2.4.1",
