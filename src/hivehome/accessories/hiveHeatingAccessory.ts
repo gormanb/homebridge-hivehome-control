@@ -31,12 +31,10 @@ export class HiveHeatingAccessory extends HiveAccessory {
     //
     // Create a switch for the Boost service offered by this heating device.
     //
-    if (!this.accessory.getService(this.kBoostName)) {
-      const boostConName = `${this.accessory.displayName} ${this.kBoostName}`;
-      this.addService(
-          Service.Switch, this.kBoostName, this.kBoostName, boostConName);
-    }
-    this.boostService = <Service>this.accessory.getService(this.kBoostName);
+    const boostConName = `${this.accessory.displayName} ${this.kBoostName}`;
+    this.boostService = this.accessory.getService(this.kBoostName) ||
+        this.addService(
+            Service.Switch, this.kBoostName, this.kBoostName, boostConName);
 
     //
     // Register handlers for all dynamic characteristics.
