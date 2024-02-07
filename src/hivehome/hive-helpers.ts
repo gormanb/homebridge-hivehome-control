@@ -1,14 +1,9 @@
+/* eslint-disable indent */
 import {PlatformConfig} from 'homebridge';
 
 import {Log} from '../util/log';
 
-import {DEVICE_LOGIN_REQUIRED, HeatingMode, kChallengeName, kScanIntervalSecs, pyhiveapi} from './hive-api';
-
-// Map of hiveType to device display names.
-export const kHiveDeviceNames = {
-  'heating': 'Heating',
-  'hotwater': 'Hot Water',
-};
+import {DEVICE_LOGIN_REQUIRED, HeatingMode, kChallengeName, kScanIntervalSecs, pyhiveapi, PyHiveAuth, PyHiveType} from './hive-api';
 
 // Translate a mode to the format suitable for a request to the server.
 export function translateModeForRequest(mode: HeatingMode) {
@@ -23,9 +18,9 @@ export function startHiveSession(config: PlatformConfig) {
   });
 
   // Tell the auth object about the device if we have already registered it.
-  hiveSession.auth.__setattr__('device_group_key', config.deviceGroupKey);
-  hiveSession.auth.__setattr__('device_key', config.deviceKey);
-  hiveSession.auth.__setattr__('device_password', config.devicePassword);
+  hiveSession.auth.__setattr__(PyHiveAuth.kDevGroupKey, config.deviceGroupKey);
+  hiveSession.auth.__setattr__(PyHiveAuth.kDevKey, config.deviceKey);
+  hiveSession.auth.__setattr__(PyHiveAuth.kDevPassword, config.devicePassword);
 
   // Perform the login.
   const login = hiveSession.login();
@@ -60,7 +55,7 @@ export function updateHiveData(hiveSession, hiveDevice) {
 
 // Retrieve a list of all hot water devices from the Hive session.
 export function getHiveDeviceList(hiveSession) {
-  const waterHeaters = hiveSession.deviceList.__getitem__('water_heater');
-  const roomHeaters = hiveSession.deviceList.__getitem__('climate');
+  const waterHeaters = hiveSession.deviceList.__getitem__(PyHiveType.kHotWater);
+  const roomHeaters = hiveSession.deviceList.__getitem__(PyHiveType.kHeating);
   return roomHeaters.toJS().concat(waterHeaters.toJS());
 }

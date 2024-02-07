@@ -4,7 +4,8 @@ import {API, Characteristic, DynamicPlatformPlugin, Logger, PlatformAccessory, P
 import {HiveAccessory} from './hivehome/accessories/hiveAccessory';
 import {HiveHeatingAccessory} from './hivehome/accessories/hiveHeatingAccessory';
 import {HiveHotWaterAccessory} from './hivehome/accessories/hiveHotWaterAccessory';
-import {getHiveDeviceList, kHiveDeviceNames, startHiveSession} from './hivehome/hive-helpers';
+import {HiveData, HiveType, HiveTypeName} from './hivehome/hive-api';
+import {getHiveDeviceList, startHiveSession} from './hivehome/hive-helpers';
 import {PLATFORM_NAME, PLUGIN_NAME} from './settings';
 import {Log} from './util/log';
 
@@ -28,8 +29,8 @@ export class HiveHomeControllerPlatform implements DynamicPlatformPlugin {
 
   // Classes for reflective instantiation based on Hive type.
   private readonly hiveAccessories = {
-    'heating': HiveHeatingAccessory,
-    'hotwater': HiveHotWaterAccessory,
+    [HiveType.kHeating]: HiveHeatingAccessory,
+    [HiveType.kHotWater]: HiveHotWaterAccessory,
   };
 
   constructor(
@@ -120,10 +121,10 @@ export class HiveHomeControllerPlatform implements DynamicPlatformPlugin {
     // Iterate over the discovered devices and create handlers for each.
     for (const hiveDevice of deviceList) {
       // Generate a unique id for the accessory from its device ID.
-      const uuid = this.api.hap.uuid.generate(hiveDevice['hiveID']);
-      const deviceType = hiveDevice['hiveType'];
+      const uuid = this.api.hap.uuid.generate(hiveDevice[HiveData.kId]);
+      const deviceType = hiveDevice[HiveData.kType];
       const displayName =
-          `${hiveDevice['hiveName']} ${kHiveDeviceNames[deviceType]}`;
+          `${hiveDevice[HiveData.kName]} ${HiveTypeName[deviceType]}`;
 
       // See if an accessory with the same uuid already exists.
       let accessory =
