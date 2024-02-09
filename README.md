@@ -15,3 +15,7 @@ Install the plugin via the Homebridge UI. Before it can be used, the plugin conf
 ## Instructions
 
 The plugin will expose a single `Heating Boost` switch for each Hive thermostat in your home. For each water heater, it will also create a `Hot Water` accessory containing two switches, `Manual` and `Boost`. The former will turn the hot water on until you turn it off, while the latter will boost it for a set period. Boost duration for both Heating and Hot Water, along with the target temperature for the former, can be set via the plugin's configuration.
+
+## Requirements
+
+The plugin requires `python3` and `pip3` to be installed on the system that Homebridge is running on. It will not attempt to install these packages itself.
