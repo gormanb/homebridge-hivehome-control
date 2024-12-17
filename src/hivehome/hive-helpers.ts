@@ -6,7 +6,8 @@ import {python} from 'pythonia';
 
 import {Log} from '../util/log';
 
-import {DEVICE_LOGIN_REQUIRED, HeatingMode, kChallengeName, kScanIntervalSecs, PyHiveAuth, PyHiveType} from './hive-api';
+// eslint-disable-next-line max-len
+import {DEVICE_LOGIN_REQUIRED, HeatingMode, HiveData, HiveTypeName, kChallengeName, kScanIntervalSecs, PyHiveAuth, PyHiveType} from './hive-api';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: this is the recommended way to exit pythonia
@@ -65,12 +66,17 @@ export async function updateHiveData(hiveSession, hiveDevice) {
   return false;
 }
 
-// Retrieve a list of all hot water devices from the Hive session.
+// Retrieve a list of all valid hot water and heating devices from Hive.
 export async function getHiveDeviceList(hiveSession) {
   const deviceList: any[] = [];
+  // The PyHiveType enum lists the device categories used by the python library.
   for (const deviceType of [PyHiveType.kHeating, PyHiveType.kHotWater]) {
     for await (const hiveDevice of await hiveSession.deviceList[deviceType]) {
-      deviceList.push(hiveDevice);
+      // HiveType specifies Hive native categories, a subset of PyHiveType.
+      // Ensure the device is one of the categories supported by this plugin.
+      if (HiveTypeName[await hiveDevice[HiveData.kType]]) {
+        deviceList.push(hiveDevice);
+      }
     }
   }
   return deviceList;
