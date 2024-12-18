@@ -20,12 +20,14 @@ export enum HiveData {
 // Enum of native Hive device type strings.
 export enum HiveType {
   kHeating = 'heating',
+  kRadiator = 'trvcontrol',
   kHotWater = 'hotwater'
 }
 
 // Map of hiveType to device display names.
 export const HiveTypeName = {
   [HiveType.kHeating]: 'Heating',
+  [HiveType.kRadiator]: 'Radiator',
   [HiveType.kHotWater]: 'Hot Water',
 };
 

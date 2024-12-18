@@ -30,6 +30,7 @@ export class HiveHomeControllerPlatform implements DynamicPlatformPlugin {
   // Classes for reflective instantiation based on Hive type.
   private readonly hiveAccessories = {
     [HiveType.kHeating]: HiveHeatingAccessory,
+    [HiveType.kRadiator]: HiveHeatingAccessory,
     [HiveType.kHotWater]: HiveHotWaterAccessory,
   };
 
