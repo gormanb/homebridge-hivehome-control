@@ -21,7 +21,8 @@ export function translateModeForRequest(mode: HeatingMode) {
 // Start a new Hive session using pyhiveapi.
 export async function startHiveSession(config: PlatformConfig) {
   // Add our local pylib directory to the python path and import pyhiveapi.
-  await (await python('sys')).path.append(join(__dirname, '..', '..', 'pylib'));
+  const pylibDir = join(__dirname, '..', '..', 'pylib');
+  await (await python('sys')).path.insert(0, pylibDir);
   const pyhiveapi = await python('pyhiveapi');
 
   // Start the Hive session with the specified username and password.
