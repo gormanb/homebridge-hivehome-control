@@ -24,7 +24,7 @@
     "watch": "npm run build && npm link && nodemon",
     "build": "rimraf ./dist && tsc",
     "prepublishOnly": "npm run lint && npm run build",
-    "postinstall": "python3 -m pip install git+https://github.com/Pyhass/Pyhive.git@v1.0.10 --target pylib --upgrade"
+    "postinstall": "python3 -m pip install git+https://github.com/Pyhass/Pyhive.git@v1.0.10 --target pylib --upgrade && python3 bin/patch-pylib.py"
   },
   "keywords": [
     "homebridge-plugin",
