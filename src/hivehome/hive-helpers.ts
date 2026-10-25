@@ -7,7 +7,7 @@ import {python} from 'pythonia';
 import {Log} from '../util/log';
 
 // eslint-disable-next-line max-len
-import {DEVICE_LOGIN_REQUIRED, HeatingMode, HiveData, HiveTypeName, kChallengeName, kScanIntervalSecs, PyHiveAuth, PyHiveType} from './hive-api';
+import {HeatingMode, HiveData, HiveTypeName, kScanIntervalSecs, PyHiveAuth, PyHiveType} from './hive-api';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: this is the recommended way to exit pythonia
@@ -36,16 +36,13 @@ export async function startHiveSession(config: PlatformConfig) {
   hiveSession.auth[PyHiveAuth.kDevKey] = config.deviceKey;
   hiveSession.auth[PyHiveAuth.kDevPassword] = config.devicePassword;
 
-  // Perform the login.
+  // Perform the login. v1.0.10+ handles the DEVICE_SRP_AUTH challenge internally.
   const login = await hiveSession.login();
 
-  // If the device is already registered, log in using its information.
-  const challengeName = await login.get(kChallengeName);
-  if (challengeName === DEVICE_LOGIN_REQUIRED) {
-    await hiveSession.deviceLogin();
-  } else {
+  // A successful login returns an AuthenticationResult; anything else is a failure.
+  if (!await login.get('AuthenticationResult')) {
     Log.error('Could not log in. Are you sure the device is registered?');
-    Log.debug('Login replied with:', challengeName);
+    Log.debug('Login replied with:', login);
     return null;
   }
 

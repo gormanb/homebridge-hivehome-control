@@ -4,12 +4,6 @@ export const kHiveDeviceName = 'HomebridgeHiveHomeDevice';
 // Minimum duration between device status refreshes from the server.
 export const kScanIntervalSecs = 15;
 
-// The field in the login response which determines the type of auth required.
-export const kChallengeName = 'ChallengeName';
-
-// The string returned from the server to indicate a device login is required.
-export const DEVICE_LOGIN_REQUIRED = 'DEVICE_SRP_AUTH';
-
 // Important fields in the Hive device data response.
 export enum HiveData {
   kId = 'hiveID',
