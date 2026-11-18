@@ -135,3 +135,6 @@ web_modules/
 
 # Python libraries
 pylib
+
+# AI tools
+.claude/
